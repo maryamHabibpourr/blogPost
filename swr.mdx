@@ -1,0 +1,96 @@
+---
+title: 'Efficient Data Fetching with SWR'
+date: '2025-02-01'
+tags: ['react', 'swr', 'data-fetching']
+---
+
+## Introduction to SWR
+
+SWR (Stale-While-Revalidate) is a React hooks library for data fetching developed by Vercel. It provides an optimized, fast, and flexible approach to handling remote data in React applications.
+
+The key benefits of SWR include:
+
+- Automatic caching and revalidation
+- Background data updates
+- Focus revalidation (refreshing data when the user returns to the page)
+- Fast page navigation with instant state updates
+
+## Basic Usage
+
+To get started with SWR, first install it:
+
+```sh
+npm install swr
+```
+
+Then, use it inside a React component:
+
+```tsx
+import useSWR from 'swr'
+
+const fetcher = (url: string) => fetch(url).then(res => res.json())
+
+export default function Profile() {
+  const { data, error } = useSWR('/api/user', fetcher)
+
+  if (error) return <div>Failed to load</div>
+  if (!data) return <div>Loading...</div>
+
+  return <div>Welcome, {data.name}!</div>
+}
+```
+
+## Handling Mutations
+
+SWR also allows you to update data optimistically using mutations:
+
+```tsx
+import useSWR, { mutate } from 'swr'
+
+const fetcher = (url: string) => fetch(url).then(res => res.json())
+
+export default function Profile() {
+  const { data } = useSWR('/api/user', fetcher)
+
+  const updateProfile = async () => {
+    const newUser = { name: 'Updated User' }
+    mutate('/api/user', newUser, false) // Optimistic update
+    await fetch('/api/user', { method: 'POST', body: JSON.stringify(newUser) })
+    mutate('/api/user') // Revalidate after update
+  }
+
+  return (
+    <div>
+      <p>{data ? `Welcome, ${data.name}!` : 'Loading...'}</p>
+      <button onClick={updateProfile}>Update Profile</button>
+    </div>
+  )
+}
+```
+
+## Using SWR with Custom Fetchers
+
+You can use different fetchers such as Axios:
+
+```tsx
+import useSWR from 'swr'
+import axios from 'axios'
+
+const fetcher = (url: string) => axios.get(url).then(res => res.data)
+
+export default function Profile() {
+  const { data, error } = useSWR('/api/user', fetcher)
+
+  if (error) return <div>Failed to load</div>
+  if (!data) return <div>Loading...</div>
+
+  return <div>Welcome, {data.name}!</div>
+}
+```
+
+## Conclusion
+
+SWR simplifies data fetching in React applications by providing an intuitive API and handling caching, revalidation, and background updates. It enhances performance and user experience, making it an essential tool for modern web development.
+
+<CustomImage src="https://raw.githubusercontent.com/maryamHabibpourr/blogPost/main/images/SWRGuide.png" alt="SWR Guide" />
+
